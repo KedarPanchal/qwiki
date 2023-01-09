@@ -208,7 +208,7 @@ fn version() -> Result<String, String> {
 
 fn help() -> Result<String, String> {
     Ok(concat!(
-        "-s: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument) from the article (specified by the first argument).",
+        "-s: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument and is CASE SENSITIVE) from the article (specified by the first argument).",
         "This flag is used by default if no flags are provided.\n",
         "-t: Lists all of the sections of the Wikipedia article specified by the argument provided.\n",
         "-r: Gets all of the references of the Wikipedia article specified by the argument provided.\n",

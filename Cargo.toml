@@ -1,7 +1,15 @@
 [package]
 name = "qwiki"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
+authors = ["Kedar Panchal <kedar.t.panchal@outlook.com>"]
+license = "MIT"
+description = "A command-line utility to search for Wikipedia articles"
+readme = "README.md"
+homepage = "https://github.com/KedarPanchal/qwiki"
+repository = "https://github.com/KedarPanchal/qwiki"
+keywords = ["cli", "wikipedia"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

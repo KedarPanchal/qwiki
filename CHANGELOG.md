@@ -1,3 +1,5 @@
 # Changelog
-### 1/8/2023 - Version 0.1.0 Released!
-Created qwiki project with basic command-line functionality
+### Version 0.1.0 - 1/8/2023
+Created qwiki project with basic command-line functionality.
+### Version 0.1.1 - 1/8/2023
+Fixed grammar, updated README, and added license and metadata.

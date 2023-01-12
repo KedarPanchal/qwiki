@@ -5,8 +5,6 @@ extern crate wikipedia;
 pub fn run(args: &Vec<String>) -> Result<(), String> {
     let flags = get_flags(args);
     let params = get_params(args)?;
-
-    //Should write output to file if WIKIWRITE env variable is set to 1
     for flag in &flags {
         match parse_flags(flag, &params) {
             Ok(s) => println!("{}", s),
@@ -34,17 +32,20 @@ fn get_flags(args: &Vec<String>) -> Vec<String> {
 
     let mut ret: Vec<String> = vec![];
     for i in 0..pre.len() {
-        ret.push(pre[i].to_string().to_lowercase());
-        ret[i].remove(0);
-        if ret[i].len() > 1 {
-            let second = ret[i].pop().unwrap().to_string();
-            ret.push(second);
+        if !pre[i].starts_with("--") {
+            for c in pre[i].chars() {
+                ret.push(c.to_string());
+            }
+        } else {
+            ret.push(pre[i].replace("--", ""));
         }
     }
 
     if ret.len() == 0 {
         ret.push(String::from(""));
     }
+    ret.retain(|s| s != "-");
+
     ret
 }
 
@@ -58,7 +59,8 @@ fn get_params(args: &Vec<String>) -> Result<Vec<String>, &str> {
     for s in pre {
         params.push(s.to_string());
     }
-    if params.len() > 3 {
+    params.remove(0);
+    if params.len() > 2 {
         Err("Error: too many arguments provided")
     } else {
         Ok(params)
@@ -68,23 +70,23 @@ fn get_params(args: &Vec<String>) -> Result<Vec<String>, &str> {
 fn parse_flags(flag: &String, params: &Vec<String>) -> Result<String, String> {
     let wiki = wikipedia::Wikipedia::<wikipedia::http::default::Client>::default();
     if flag.len() == 0 {
-        return if params.len() > 2 {search_section(&wiki, params.get(1), params.last())} else {search_summary(&wiki, params.last())}
+        return if params.len() > 2 {search_section(&wiki, params.get(0), params.last())} else {search_summary(&wiki, params.last())}
     } else {
         return match flag.as_str() {
-            "s" => {
+            "s" | "--summary" => {
                 if params.len() > 2 {
-                    search_section(&wiki, params.get(1), params.last())
+                    search_section(&wiki, params.get(0), params.last())
                 } else {
                     search_summary(&wiki, params.last())
                 }
             },
-            "p" => pageid(&wiki, params.last()),
-            "t" => table_of_contents(&wiki, params.last()),
-            "r" => references(&wiki, params.last()),
-            "c" => categories(&wiki, params.last()),
-            "l" => link(&wiki, params.last()),
-            "v" => version(),
-            "h" => help(),
+            "p" | "pageid" => pageid(&wiki, params.last()),
+            "t" | "toc" => table_of_contents(&wiki, params.last()),
+            "r" | "references" => references(&wiki, params.last()),
+            "c" | "categories" => categories(&wiki, params.last()),
+            "l" | "link" => link(&wiki, params.last()),
+            "v" | "version" => version(),
+            "h" | "help" => help(),
             _ => return Err(String::from("Unknown flag provided"))
         };
     }   
@@ -208,14 +210,14 @@ fn version() -> Result<String, String> {
 
 fn help() -> Result<String, String> {
     Ok(concat!(
-        "-s: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument and is CASE SENSITIVE) from the article (specified by the first argument).",
+        "-s --summary: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument and is CASE SENSITIVE) from the article (specified by the first argument).",
         "This flag is used by default if no flags are provided.\n",
-        "-t: Lists all of the sections of the Wikipedia article specified by the argument provided.\n",
-        "-r: Gets all of the references of the Wikipedia article specified by the argument provided.\n",
-        "-c: Gets all of the categories of the Wikipedia article specified by the argument provided.\n",
-        "-l: Gets a link to the Wikipedia article specified by the argument provided.\n",
-        "-p: Gets the pageid of the Wikipedia article specified by the argument provided.\n",
-        "-v: Gets the version of qwiki."
+        "-t --toc: Lists all of the sections of the Wikipedia article specified by the argument provided.\n",
+        "-r --references: Gets all of the references of the Wikipedia article specified by the argument provided.\n",
+        "-c --categories: Gets all of the categories of the Wikipedia article specified by the argument provided.\n",
+        "-l --link: Gets a link to the Wikipedia article specified by the argument provided.\n",
+        "-p --pageid: Gets the pageid of the Wikipedia article specified by the argument provided.\n",
+        "-v --version: Gets the version of qwiki."
     ).to_owned())
 }
 
@@ -224,9 +226,9 @@ mod tests {
     use super::*;
     #[test]
     fn check_flags() {
-        let args = vec![String::from("cow"), String::from("-s"), String::from("-e")];
+        let args = vec![String::from("cow"), String::from("-s"), String::from("-e"), String::from("--moose")];
         let result = get_flags(&args);
-        let check = vec![String::from("s"), String::from("e")];
+        let check = vec![String::from("s"), String::from("e"), String::from("moose")];
         let matching = result.iter().zip(check.iter()).filter(|&(a, b)| a == b).count();
         assert!(matching == result.len() && matching == check.len());
     }
@@ -244,7 +246,7 @@ mod tests {
     fn check_params_ok() {
         let args = vec![String::from("co-w"), String::from("moose"), String::from("-s"), String::from("-e")];
         let result = get_params(&args);
-        let check = vec![String::from("co-w"), String::from("moose")];
+        let check = vec![String::from("moose")];
         assert!(result.is_ok());
         let matching = result.as_ref().unwrap().iter().zip(check.iter()).filter(|&(a, b)| a == b).count();
         assert!(matching == result.unwrap().len() && matching == check.len());

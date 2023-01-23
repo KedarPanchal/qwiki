@@ -1,4 +1,8 @@
 # Changelog
+### Version 0.3.0 - 1/22/23  
+Made section searching case insensitive.  
+Fixed bug where searching for sections instead gave article summary.  
+Updated README.  
 ### Version 0.2.0 - 1/11/23  
 Added extra flag options.  
 Updated README and LICENSE.  

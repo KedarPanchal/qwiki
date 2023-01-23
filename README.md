@@ -7,7 +7,7 @@ To build qwiki, have `cargo` installed on your system. Type `cargo install qwiki
 
 ## Using qwiki 
 Type `qwiki <ARTICLE_NAME>`, `qwiki -s <ARTICLE_NAME>`, or `qwiki --summary <ARTICLE_NAME>` in the command line to get the summary of a Wikipedia article.   
-Type `qwiki <ARTICLE_NAME> <SECTION_NAME>`, `qwiki -s <ARTICLE_NAME>` or `qwiki --summary <ARTICLE_NAME> <SECTION_NAME>` in the command line to get the content of a section of a Wikipedia article (section names are case sensitive).   
+Type `qwiki <ARTICLE_NAME> <SECTION_NAME>`, `qwiki -s <ARTICLE_NAME>` or `qwiki --summary <ARTICLE_NAME> <SECTION_NAME>` in the command line to get the content of a section of a Wikipedia article.   
 Type `qwiki -t <ARTICLE_NAME>` or `qwiki --toc <ARTICLE_NAME>` to get a list of sections for a Wikipedia article.   
 Type `qwiki -r <ARTICLE_NAME>` or `qwiki --references <ARTICLE_NAME>` to get a list of the references for a Wikipedia article.  
 Type `qwiki -c <ARTICLE_NAME>` or `qwiki --categories <ARTICLE_NAME>` to get all of the categories a Wikipedia article belongs to.  

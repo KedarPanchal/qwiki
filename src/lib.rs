@@ -70,11 +70,11 @@ fn get_params(args: &Vec<String>) -> Result<Vec<String>, &str> {
 fn parse_flags(flag: &String, params: &Vec<String>) -> Result<String, String> {
     let wiki = wikipedia::Wikipedia::<wikipedia::http::default::Client>::default();
     if flag.len() == 0 {
-        return if params.len() > 2 {search_section(&wiki, params.get(0), params.last())} else {search_summary(&wiki, params.last())}
+        return if params.len() > 1 {search_section(&wiki, params.get(0), params.last())} else {search_summary(&wiki, params.last())}
     } else {
         return match flag.as_str() {
             "s" | "--summary" => {
-                if params.len() > 2 {
+                if params.len() > 1 {
                     search_section(&wiki, params.get(0), params.last())
                 } else {
                     search_summary(&wiki, params.last())
@@ -114,19 +114,30 @@ fn search_summary(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Opt
 
     matchout(page.get_summary())
 }
-
+// Add case insensitivity by iterating through sections until matching section is found from input
 fn search_section(wiki: &Wikipedia<wikipedia::http::default::Client>, title: Option<&String>, section: Option<&String>) -> Result<String, String> {
     too_few_arguments(title)?;
     too_few_arguments(section)?;
 
     let page = wiki.page_from_title(title.unwrap().to_lowercase());
-    match page.get_section_content(section.unwrap()) {
+    let sections = match page.get_sections() {
+        Ok(v) => v,
+        Err(e) => {return Err(format!("Error: Wikipedia failed to fetch data: {}", e.to_string()));}
+    };
+
+    let mut thesection = String::new();
+    for s in sections {
+        if s.eq_ignore_ascii_case(section.unwrap()) {
+            thesection = s;
+            break;
+        }
+    }
+    return match page.get_section_content(&thesection) {
         Ok(s) => {
-            if let Some(c) = s {
-                Ok(c)
+            if let Some(v) = s {
+             Ok(v)  
             } else {
-                //Err(String::from("Error: section not found,"))
-                Err(format!("Section not found {}", section.unwrap()))
+                Err(String::from("Error: No section with that name was found"))
             }
         },
         Err(e) => Err(format!("Error: Wikipedia failed to fetch data: {}", e.to_string()))
@@ -210,7 +221,7 @@ fn version() -> Result<String, String> {
 
 fn help() -> Result<String, String> {
     Ok(concat!(
-        "-s --summary: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument and is CASE SENSITIVE) from the article (specified by the first argument).",
+        "-s --summary: Gets the summary of the Wikipedia article specified by the argument provided. If two arguments are provided instead, gets the content of the section (specified by the second argument) from the article (specified by the first argument).",
         "This flag is used by default if no flags are provided.\n",
         "-t --toc: Lists all of the sections of the Wikipedia article specified by the argument provided.\n",
         "-r --references: Gets all of the references of the Wikipedia article specified by the argument provided.\n",

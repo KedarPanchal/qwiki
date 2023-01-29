@@ -1,4 +1,7 @@
 # Changelog
+### Version 0.3.1 - 1/27/23  
+Fixed case sensitivity for certain flags.  
+Made links more accurate.  
 ### Version 0.3.0 - 1/22/23  
 Made section searching case insensitive.  
 Fixed bug where searching for sections instead gave article summary.  

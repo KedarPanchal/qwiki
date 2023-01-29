@@ -114,7 +114,7 @@ fn search_summary(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Opt
 
     matchout(page.get_summary())
 }
-// Add case insensitivity by iterating through sections until matching section is found from input
+
 fn search_section(wiki: &Wikipedia<wikipedia::http::default::Client>, title: Option<&String>, section: Option<&String>) -> Result<String, String> {
     too_few_arguments(title)?;
     too_few_arguments(section)?;
@@ -191,7 +191,7 @@ fn references(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Option<
 fn categories(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Option<&String>) -> Result<String, String> {
     too_few_arguments(query)?;
 
-    let page = wiki.page_from_title(query.unwrap().to_owned());
+    let page = wiki.page_from_title(query.unwrap().to_lowercase());
 
     let mut cats = String::new();
     match page.get_categories() {
@@ -207,11 +207,10 @@ fn categories(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Option<
 }
 
 fn link(wiki: &Wikipedia<wikipedia::http::default::Client>, query: Option<&String>) -> Result<String, String> {
-    too_few_arguments(query)?;
-
-    match wiki.page_from_title(query.unwrap().to_owned()).get_title() {
-        Ok(_) => Ok(format!("https://wikipedia.org/wiki/{}", query.unwrap())),
-        Err(e) => Err(format!("Error: invalid link: {}", e.to_string()))
+    let pageid = pageid(wiki, query);
+    return match pageid {
+        Ok(s) => Ok(format!("http://en.wikipedia.org/?curid={}", s)),
+        Err(e) => Err(format!("Failed to retrieve link: {}", e.to_string()))
     }
 }
 
